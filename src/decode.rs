@@ -52,6 +52,13 @@ impl<'a> RawToken<'a> {
 
 pub type RawClaims = HashMap<String, serde_json::Value>;
 
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum StringOrVecString {
+    String(String),
+    VecString(Vec<String>),
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct StandardClaims {
     /// Expiration time (unix timestamp).
@@ -63,7 +70,7 @@ pub struct StandardClaims {
     /// Issuer (who created and signed this token). This is the UUID which uniquely identifies this user inside Keycloak.
     pub iss: String,
     /// Audience (who or what the token is intended for).
-    pub aud: String,
+    pub aud: StringOrVecString,
     /// Subject (whom the token refers to).
     pub sub: String,
     /// Type of token.
@@ -153,7 +160,7 @@ pub struct KeycloakToken<R: Role> {
     /// Issuer (who created and signed this token).
     pub issuer: String,
     /// Audience (who or what the token is intended for).
-    pub audience: String,
+    pub audience: StringOrVecString,
     /// Subject (whom the token refers to). This is the UUID which uniquely identifies this user inside Keycloak.
     pub subject: String,
     /// Authorized party (the party to which this token was issued).
