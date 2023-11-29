@@ -251,19 +251,16 @@ impl<R: Role> ExpectRoles<R> for KeycloakToken<R> {
 
     // This Is Add Chained Method for (RnD)
     fn contained_roles<I: Into<R> + Clone>(&self, roles: &[I]) -> Result<(), Self::Rejection> {
+        let mut current_role = String::new();
         for expected in roles {
             let expected: R = expected.clone().into();
-            if !self
-                .roles
-                .iter()
-                .any(|role| role.role().to_string().contains(&expected.to_string()))
-            {
-                return Err(AuthError::MissingExpectedRole {
-                    role: expected.to_string(),
-                });
+            if self.roles.iter().any(|role| role.role() == &expected) {
+                return Ok(());
             }
+
+            current_role = expected.to_string();
         }
-        Ok(())
+        Err(AuthError::MissingExpectedRole { role: current_role })
     }
 
     fn not_expect_roles<I: Into<R> + Clone>(&self, roles: &[I]) -> Result<(), Self::Rejection> {
