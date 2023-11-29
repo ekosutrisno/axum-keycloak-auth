@@ -116,7 +116,8 @@ where
                     let standard_claims = StandardClaims::parse(raw_claims)?;
                     let keycloak_token = KeycloakToken::<R>::parse(standard_claims)?;
                     keycloak_token.assert_not_expired()?;
-                    keycloak_token.expect_roles(&this.required_roles)?;
+                    // keycloak_token.expect_roles(&this.required_roles)?; // This is Defaults
+                    keycloak_token.contained_roles(&this.required_roles)?; // This is Custome (RND)
                     Ok((raw_claims_clone, keycloak_token))
                 }) {
                 Ok((raw_claims, keycloak_token)) => {

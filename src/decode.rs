@@ -32,7 +32,11 @@ pub(crate) fn parse_jwt_token(headers: &HeaderMap<HeaderValue>) -> Result<RawTok
 }
 
 impl<'a> RawToken<'a> {
-    pub fn decode(&self, jwt_decoding_key: &DecodingKey, expected_audiences: &[String]) -> Result<RawClaims, AuthError> {
+    pub fn decode(
+        &self,
+        jwt_decoding_key: &DecodingKey,
+        expected_audiences: &[String],
+    ) -> Result<RawClaims, AuthError> {
         let jwt_header = decode_header(self.0).context(DecodeHeaderSnafu {})?;
 
         debug!(?jwt_header, "Decoded JWT header");
@@ -237,6 +241,23 @@ impl<R: Role> ExpectRoles<R> for KeycloakToken<R> {
         for expected in roles {
             let expected: R = expected.clone().into();
             if !self.roles.iter().any(|role| role.role() == &expected) {
+                return Err(AuthError::MissingExpectedRole {
+                    role: expected.to_string(),
+                });
+            }
+        }
+        Ok(())
+    }
+
+    // This Is Add Chained Method for (RnD)
+    fn contained_roles<I: Into<R> + Clone>(&self, roles: &[I]) -> Result<(), Self::Rejection> {
+        for expected in roles {
+            let expected: R = expected.clone().into();
+            if !self
+                .roles
+                .iter()
+                .any(|role| role.role().to_string().contains(&expected.to_string()))
+            {
                 return Err(AuthError::MissingExpectedRole {
                     role: expected.to_string(),
                 });

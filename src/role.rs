@@ -79,6 +79,7 @@ pub trait ExpectRoles<R: Role> {
     type Rejection: IntoResponse;
 
     fn expect_roles<I: Into<R> + Clone>(&self, roles: &[I]) -> Result<(), Self::Rejection>;
+    fn contained_roles<I: Into<R> + Clone>(&self, roles: &[I]) -> Result<(), Self::Rejection>;
     fn not_expect_roles<I: Into<R> + Clone>(&self, roles: &[I]) -> Result<(), Self::Rejection>;
 }
 
@@ -95,6 +96,24 @@ macro_rules! expect_roles {
 macro_rules! expect_role {
     ($token: expr, $role: expr) => {
         if let Err(err) = axum_keycloak_auth::role::ExpectRoles::expect_roles($token, &[$role]) {
+            return axum::response::IntoResponse::into_response(err);
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! contained_roles {
+    ($token: expr, $roles: expr) => {
+        if let Err(err) = axum_keycloak_auth::role::ExpectRoles::contained_roles($token, $roles) {
+            return axum::response::IntoResponse::into_response(err);
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! contained_role {
+    ($token: expr, $role: expr) => {
+        if let Err(err) = axum_keycloak_auth::role::ExpectRoles::contained_roles($token, &[$role]) {
             return axum::response::IntoResponse::into_response(err);
         }
     };
