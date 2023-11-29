@@ -251,6 +251,10 @@ impl<R: Role> ExpectRoles<R> for KeycloakToken<R> {
 
     // This Is Add Chained Method for (RnD)
     fn contained_roles<I: Into<R> + Clone>(&self, roles: &[I]) -> Result<(), Self::Rejection> {
+        if roles.is_empty() {
+            return Ok(());
+        }
+
         let mut current_role = String::new();
         for expected in roles {
             let expected: R = expected.clone().into();
