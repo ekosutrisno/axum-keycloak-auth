@@ -151,3 +151,19 @@ macro_rules! not_expect_role {
         }
     };
 }
+
+#[macro_export]
+macro_rules! check_authority {
+    ($auth_token:expr, $role_client_allowed:expr) => {{
+        let array: Vec<String> = $role_client_allowed
+            .split(',')
+            .map(|s| s.trim().to_string())
+            .collect();
+
+        $auth_token.roles.iter().any(|t| {
+            t.client_role()
+                .map(|c| array.contains(&c.role_fmt()))
+                .unwrap_or(false)
+        })
+    }};
+}

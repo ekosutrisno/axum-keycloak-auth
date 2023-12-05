@@ -80,15 +80,15 @@ impl IntoResponse for AuthError {
                 Cow::Owned(err.to_string()),
             ),
             err @ AuthError::DecodeHeader { source: _ } => (
-                StatusCode::INTERNAL_SERVER_ERROR,
+                StatusCode::UNAUTHORIZED,
                 Cow::Owned(err.to_string()),
             ),
             err @ AuthError::Decode { source: _ } => (
-                StatusCode::INTERNAL_SERVER_ERROR,
+                StatusCode::UNAUTHORIZED,
                 Cow::Owned(err.to_string()),
             ),
             err @ AuthError::JsonParse { source: _ } => (
-                StatusCode::INTERNAL_SERVER_ERROR,
+                StatusCode::UNAUTHORIZED,
                 Cow::Owned(err.to_string()),
             ),
             err @ AuthError::TokenExpired => {
