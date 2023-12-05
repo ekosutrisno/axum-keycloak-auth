@@ -35,6 +35,13 @@ impl<R: Role> KeycloakRole<R> {
             KeycloakRole::Client { client: _, role } => role,
         }
     }
+
+    pub fn client_role(&self) -> Option<&Self> {
+        match self {
+            KeycloakRole::Client { .. } => Some(self),
+            _ => None,
+        }
+    }
 }
 
 pub trait NumRoles {
