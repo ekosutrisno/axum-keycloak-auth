@@ -42,6 +42,13 @@ impl<R: Role> KeycloakRole<R> {
             _ => None,
         }
     }
+
+    pub fn role_fmt(&self) -> String {
+        match self {
+            KeycloakRole::Client { client, role } => format!("{}.{}", client, role),
+            _ => "".to_string(),
+        }
+    }
 }
 
 pub trait NumRoles {
