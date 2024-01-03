@@ -248,7 +248,7 @@ impl<R: Role> ExpectRoles<R> for KeycloakToken<R> {
         }
         Ok(())
     }
-    
+
     fn contained_roles<I: Into<R> + Clone>(&self, roles: &[I]) -> Result<(), Self::Rejection> {
         if roles.is_empty() {
             return Ok(());
