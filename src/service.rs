@@ -107,7 +107,9 @@ where
 
         Box::pin(async move {
             match parse_jwt_token(request.headers())
-                .and_then(|token| token.decode(&this.jwt_decoding_key, this.expected_audiences.as_slice()))
+                .and_then(|token| {
+                    token.decode(&this.jwt_decoding_key, this.expected_audiences.as_slice())
+                })
                 .and_then(|raw_claims| {
                     let raw_claims_clone = match this.persist_raw_claims {
                         true => Some(raw_claims.clone()),
