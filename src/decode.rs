@@ -19,16 +19,21 @@ use super::{error::AuthError, role::ExtractRoles, role::Role};
 pub(crate) struct RawToken<'a>(&'a str);
 
 pub(crate) fn parse_jwt_token(headers: &HeaderMap<HeaderValue>) -> Result<RawToken<'_>, AuthError> {
-    headers
+    let auth_header = headers
         .get(http::header::AUTHORIZATION)
-        .ok_or(AuthError::MissingAuthorizationHeader)?
+        .ok_or(AuthError::MissingAuthorizationHeader)?;
+
+    let auth_str = auth_header
         .to_str()
         .map_err(|err| AuthError::InvalidAuthorizationHeader {
             reason: err.to_string(),
-        })?
-        .strip_prefix("Bearer ")
-        .ok_or(AuthError::MissingBearerToken)
-        .map(RawToken)
+        })?;
+
+    if auth_str.len() < 7 || !auth_str[0..7].eq_ignore_ascii_case("Bearer ") {
+        return Err(AuthError::MissingBearerToken);
+    }
+
+    Ok(RawToken(&auth_str[7..]))
 }
 
 impl<'a> RawToken<'a> {
